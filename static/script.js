@@ -58,11 +58,12 @@ var minimax = function (depth, game, alpha, beta, isMaximisingPlayer) {
 var evaluateBoard = function (board) {
     // 'board' is an array [8] of arrays [8], cooresponding to rows on the board starting with the top, black row
     // each element in the inner arrays is one of: {type: "r", color: "b"} or null
-    // console.log(board)
+    console.log(board)
+
     $.ajax({
         type: "POST",
-        url: "http://localhost:5000/app.py",
-        data: {'test':'test'},
+        url: "/",
+        data: JSON.stringify(board),
         dataType: 'json',
         xhrFields: {
             withCredentials: true
@@ -70,14 +71,13 @@ var evaluateBoard = function (board) {
         crossDomain: true,
         contentType: 'application/json; charset=utf-8',
         // success: alert('this worked')
-        success: function(response){
-            alert('ajax POST successful')
-            return response
-        },
+        // success: function(response){
+        //     alert('ajax POST successful')
+        //     return response
+        // },
         error: function(xhr, status, error){
             var errorMessage = xhr.status + ': ' + xhr.statusText
             console.log(errorMessage)
-            // alert('Error - ' + errorMessage);
         }
     });
 
