@@ -23,32 +23,20 @@ var minimaxRoot =function(depth, game, isMaximisingPlayer) {
 var minimax = function (depth, game, alpha, beta, isMaximisingPlayer) {
     positionCount++;
     if (depth === 0) { 
-        try {
-            var score = await evaluateBoard(game)
-            return score
-        } catch (error) {
-            console.log(error)
-        }
-  
-        // return score.then(data => data['score'], error => alert(error)).resolve()
+        // return score.then(data => alert(data['score']), error => alert(error)).resolve() //this works as an alert
 
-        // return score.then(function(data) {
-        //     // console.log(data['score'])
-        //     return data['score']
-        // });
+        var score = evaluateBoard(game)
+
+        const result = score.then(function(data) {
+            // console.log(data)
+            return -data['score']
+        })
+
+        console.log(result)
+        return result
 
 
-
-        // async & await
-        // try {
-        //     let score = await evaluateBoard(game);
-        //     console.log('Score:', score);
-        // } catch (error) {
-        //     console.log('Error:', error);
-        // }
-
-
-
+        // original code
         // return -evaluateBoard(game)
     }
 
@@ -83,7 +71,7 @@ var minimax = function (depth, game, alpha, beta, isMaximisingPlayer) {
 
 
 
-var evaluateBoard = async function (game) {
+var evaluateBoard = function (game) {
     return $.ajax({
         type: "POST",
         url: "/api/predict",
