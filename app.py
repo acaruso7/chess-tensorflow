@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import request
-from flask import render_template
+from flask import render_template, json
 from flask_cors import CORS, cross_origin
 
 import numpy as np
@@ -9,12 +9,18 @@ import tensorflow as tf
 import tensorflow.keras as keras
 
 
+
 app = Flask(__name__)
 
-@app.route("/", methods=['GET','POST'])
+
+@app.route("/")
 def main():
+    return render_template('index.html')
+
+
+@app.route("/api/predict", methods = ['GET','POST'])
+def predict():
     """get board data from client, input to Keras model, and send board scores back to client"""
-    
     def get_model():
         return keras.Sequential([
             keras.layers.Dense(2048, input_dim=768, activation=tf.nn.elu),
@@ -67,9 +73,7 @@ def main():
                             feature_vector.append(np.int8(0))
 
         board_score = prediction_model.predict(np.array(pd.Series(feature_vector)).reshape(1, 768))
-        return render_template('index.html', score = board_score[0][0])
-
-    return render_template('index.html')
+    return json.jsonify({'score':board_score.item()})
 
  
 if __name__ == "__main__":

@@ -22,8 +22,34 @@ var minimaxRoot =function(depth, game, isMaximisingPlayer) {
 
 var minimax = function (depth, game, alpha, beta, isMaximisingPlayer) {
     positionCount++;
-    if (depth === 0) {
-        return -evaluateBoard(game);
+    if (depth === 0) { 
+        try {
+            var score = await evaluateBoard(game)
+            return score
+        } catch (error) {
+            console.log(error)
+        }
+  
+        // return score.then(data => data['score'], error => alert(error)).resolve()
+
+        // return score.then(function(data) {
+        //     // console.log(data['score'])
+        //     return data['score']
+        // });
+
+
+
+        // async & await
+        // try {
+        //     let score = await evaluateBoard(game);
+        //     console.log('Score:', score);
+        // } catch (error) {
+        //     console.log('Error:', error);
+        // }
+
+
+
+        // return -evaluateBoard(game)
     }
 
     var newGameMoves = game.ugly_moves();
@@ -55,10 +81,12 @@ var minimax = function (depth, game, alpha, beta, isMaximisingPlayer) {
     }
 };
 
-var evaluateBoard = function (game) {
-    $.ajax({
+
+
+var evaluateBoard = async function (game) {
+    return $.ajax({
         type: "POST",
-        url: "/",
+        url: "/api/predict",
         data: JSON.stringify({'turn':game.turn(), 'board':game.board()}),
         dataType: 'json',
         xhrFields: {
@@ -70,16 +98,10 @@ var evaluateBoard = function (game) {
             var errorMessage = xhr.status + ': ' + xhr.statusText
             console.log(errorMessage)
         }
+    }).done(function(res) {
+        var score = res.score
+        return score
     });
-
-
-    function getScoreFromTemplate() {
-        return board_score
-    }
-
-    score = getScoreFromTemplate()
-    console.log(score)
-    return score
 };
 
 
