@@ -1,7 +1,7 @@
 var board,
     game = new Chess();
 
-var minimaxRoot =function(depth, game, isMaximisingPlayer) {
+var minimaxRoot = async function(depth, game, isMaximisingPlayer) {
 
     var newGameMoves = game.ugly_moves();
     var bestMove = -9999;
@@ -10,7 +10,7 @@ var minimaxRoot =function(depth, game, isMaximisingPlayer) {
     for(var i = 0; i < newGameMoves.length; i++) {
         var newGameMove = newGameMoves[i]
         game.ugly_move(newGameMove);
-        var value = minimax(depth - 1, game, -10000, 10000, !isMaximisingPlayer);
+        var value = await minimax(depth - 1, game, -10000, 10000, !isMaximisingPlayer);
         game.undo();
         if(value >= bestMove) {
             bestMove = value;
@@ -20,24 +20,18 @@ var minimaxRoot =function(depth, game, isMaximisingPlayer) {
     return bestMoveFound;
 };
 
-var minimax = function (depth, game, alpha, beta, isMaximisingPlayer) {
+var minimax = async function (depth, game, alpha, beta, isMaximisingPlayer) {
     positionCount++;
     if (depth === 0) { 
-        // return score.then(data => alert(data['score']), error => alert(error)).resolve() //this works as an alert
-
-        var score = evaluateBoard(game)
-
-        const result = score.then(function(data) {
-            // console.log(data)
-            return -data['score']
-        })
-
-        console.log(result)
-        return result
-
-
-        // original code
-        // return -evaluateBoard(game)
+        try {
+            const score = await evaluateBoard(game).then(function(data) {
+                console.log(data['score'])
+                return data['score']
+            })
+            return score 
+        } catch(e) {
+            console.log(e)
+        }
     }
 
     var newGameMoves = game.ugly_moves();
@@ -46,7 +40,7 @@ var minimax = function (depth, game, alpha, beta, isMaximisingPlayer) {
         var bestMove = -9999;
         for (var i = 0; i < newGameMoves.length; i++) {
             game.ugly_move(newGameMoves[i]);
-            bestMove = Math.max(bestMove, minimax(depth - 1, game, alpha, beta, !isMaximisingPlayer));
+            bestMove = Math.max(bestMove, await minimax(depth - 1, game, alpha, beta, !isMaximisingPlayer));
             game.undo();
             alpha = Math.max(alpha, bestMove);
             if (beta <= alpha) {
@@ -58,7 +52,7 @@ var minimax = function (depth, game, alpha, beta, isMaximisingPlayer) {
         var bestMove = 9999;
         for (var i = 0; i < newGameMoves.length; i++) {
             game.ugly_move(newGameMoves[i]);
-            bestMove = Math.min(bestMove, minimax(depth - 1, game, alpha, beta, !isMaximisingPlayer));
+            bestMove = Math.min(bestMove, await minimax(depth - 1, game, alpha, beta, !isMaximisingPlayer));
             game.undo();
             beta = Math.min(beta, bestMove);
             if (beta <= alpha) {
@@ -71,7 +65,7 @@ var minimax = function (depth, game, alpha, beta, isMaximisingPlayer) {
 
 
 
-var evaluateBoard = function (game) {
+var evaluateBoard = async function (game) {
     return $.ajax({
         type: "POST",
         url: "/api/predict",
@@ -103,8 +97,8 @@ var onDragStart = function (source, piece, position, orientation) {
     }
 };
 
-var makeBestMove = function () {
-    var bestMove = getBestMove(game);
+var makeBestMove = async function () {
+    var bestMove = await getBestMove(game);
     game.ugly_move(bestMove);
     board.position(game.fen());
     renderMoveHistory(game.history());
@@ -115,7 +109,7 @@ var makeBestMove = function () {
 
 
 var positionCount;
-var getBestMove = function (game) {
+var getBestMove = async function (game) {
     if (game.game_over()) {
         alert('Game over');
     }
@@ -124,7 +118,7 @@ var getBestMove = function (game) {
     var depth = parseInt($('#search-depth').find(':selected').text());
 
     var d = new Date().getTime();
-    var bestMove = minimaxRoot(depth, game, true);
+    var bestMove = await minimaxRoot(depth, game, true);
     var d2 = new Date().getTime();
     var moveTime = (d2 - d);
     var positionsPerS = ( positionCount * 1000 / moveTime);
