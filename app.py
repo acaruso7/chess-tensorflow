@@ -20,7 +20,7 @@ def load_model():
             keras.layers.Dense(1)
         ])
     prediction_model = get_model()
-    prediction_model.load_weights('model_weights.h5')
+    prediction_model.load_weights('./model/model_weights.h5')
     prediction_model._make_predict_function()
     return prediction_model
 
@@ -79,7 +79,7 @@ def predict():
 
         with session.as_default():
             with session.graph.as_default():
-                board_score = prediction_model.predict(np.array(pd.Series(feature_vector)).reshape(1, 768))
+                board_score = prediction_model.predict(np.array(pd.Series(feature_vector)).reshape(1, 768), batch_size = 1)
 
     return json.jsonify({'score':board_score.item()})
 

@@ -64,7 +64,6 @@ var minimax = async function (depth, game, alpha, beta, isMaximisingPlayer) {
 };
 
 
-
 var evaluateBoard = async function (game) {
     return $.ajax({
         type: "POST",
